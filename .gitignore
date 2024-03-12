@@ -1,0 +1,5 @@
+gulp_setup/__pycache__/
+gulp_setup/cif.py
+gulp_setup/Geometry.py
+gulp_setup/AMS_GULP.py
+.DS_Store
