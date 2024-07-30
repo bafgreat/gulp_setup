@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gulp_setup"
-version = "0.1.0"
+version = "0.1.1"
 description = "A python script to convert any ase input file to gulp (.gin)"
 authors = ["Dinga Wonanke"]
 license = "MIT"
