@@ -9,7 +9,10 @@ The installation is very simple. Follow the set of instructions
 ## Dependencies
 
 The only dependencies is 'ase'
+## From pypi
+pip install gulp_setup
 
+## From git
 ### step 1:
 Clone the folowing git repository
 ```https://github.com/bafgreat/gulp_setup.git```
