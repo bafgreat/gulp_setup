@@ -24,10 +24,13 @@ Clone the folowing git repository
 The above command will install gulp_setup python package.
 
 ## USAGE
-### Create a folder for each input file
-Run the command below to create a gulp input file from your cif file (or any ase readable file). The file created will be moved into a folder containing the prefix of the input file name. For instance, in the example below, a folder called input will be created and the files input.cif and input.gin will be created in the same folder.
+### Create input from folder containing cif
+Run the command below to create a gulp input file on a folder containing several cif files. The file created will be moved into a folder containing the prefix of the input file name.
+<!-- For instance, in the example below, a folder called input will be created and the files input.cif and input.gin will be created in the same folder. -->
 
-```gulp_setup_folder  input.cif ```
+```gulp_setup_folder  folder ```
+
+
 
 ### Simply create file
 If you do not want to create individual folders for each input file, you can simply run the command below.
