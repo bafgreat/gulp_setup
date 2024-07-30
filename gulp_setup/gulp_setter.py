@@ -8,6 +8,7 @@ It works uniquely with python3.6
 
 import os
 from ase.io import read
+import glob
 from gulp_setup import mmanalysis as mm
 import argparse
 
@@ -92,13 +93,15 @@ def gulp_input2(qcin, lattice='conv'):
     #     for structure in File:
     #        all_atoms_append.append(structure.get_atoms())
     #         sbu =all_atoms_append[0]
-    qc_base = qcin[:qcin.rindex('.')]
-    sbu = read(qcin)
-    bonds, mmtypes = mm.analyze_mm(sbu)
-    out_file = qc_base + '.gin'
-    mm.write_gin(out_file, sbu, bonds, mmtypes, lattice)
-    make_directory(qc_base)
-    Submit(qc_base, qc_base)
+    all_cifs = glob.glob(f"{qcin}/*.cif")
+    for cif_file in all_cifs:
+        qc_base = cif_file[:cif_file.rindex('.')]
+        sbu = read(cif_file)
+        bonds, mmtypes = mm.analyze_mm(sbu)
+        out_file = qc_base + '.gin'
+        mm.write_gin(out_file, sbu, bonds, mmtypes, lattice)
+        make_directory(qc_base)
+        Submit(qc_base, qc_base)
     return
 
 

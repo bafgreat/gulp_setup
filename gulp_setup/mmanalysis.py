@@ -349,4 +349,5 @@ def write_gin(path,
         #fileobj.write('output gen {0}.gen\n'.format(name))
         if sum(pbc) == 3:
             fileobj.write('output cif {0}.cif\n'.format(name))
+        fileobj.write('output xyz {0}.xyz\n'.format(name))
         return None
