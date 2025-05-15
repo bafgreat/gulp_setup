@@ -1,68 +1,100 @@
-# Gulp input setter
+# Gulp Input Setter
 
-A simple python module for creating gulp input files
+A simple Python module for creating GULP input files from CIF structures.
 
-# Installation
+## Installation
 
-The installation is very simple. Follow the set of instructions
+The installation is very straightforward. Follow the steps below.
 
-## Dependencies
+### Dependencies
 
-The only dependencies is 'ase'
-## From pypi
+The only dependency is:
+
+- ase (Atomic Simulation Environment)
+
+### Install from PyPI
+
+```bash
 pip install gulp_setup
+```
 
-## From git
-### step 1:
-Clone the folowing git repository
-```https://github.com/bafgreat/gulp_setup.git```
-### step 2:
+### Install from GitHub
 
-```cd gulp_setup```
+Step 1: Clone the repository
 
-### step 3:
+```bash
+git clone https://github.com/bafgreat/gulp_setup.git
+```
 
-```pip install .```
+Step 2: Move into the folder
 
-The above command will install gulp_setup python package.
+```bash
+cd gulp_setup
+```
 
-## USAGE
-### Create input from folder containing cif
-Run the command below to create a gulp input file on a folder containing several cif files. The file created will be moved into a folder containing the prefix of the input file name.
-<!-- For instance, in the example below, a folder called input will be created and the files input.cif and input.gin will be created in the same folder. -->
+Step 3: Install the package
 
-```gulp_setup_folder  folder ```
+```bash
+pip install .
+```
 
+This command will install the gulp_setup Python package locally.
 
+## Usage
 
-### Simply create file
-If you do not want to create individual folders for each input file, you can simply run the command below.
+### Create inputs from a folder of CIF files
 
-```gulp_setup_file input.cif```
+Run the command below to create a GULP input file for each CIF file in a folder.
+Each file will be placed into a folder named after the prefix of the input file name.
+
+```bash
+gulp_setup_folder folder
+```
+
+### Create a single input file
+
+If you do not want to create individual folders for each input file, simply run:
+
+```bash
+gulp_setup_file input.cif
+```
 
 This command will create an input.gin file in the same folder. This is useful when you do not want to create multiple folders for each input file.
 
 ### Lattice optimization
-The above examples only create gulp input files for constant volumes meaning that the lattices are not optimized. If you want to optimize the lattices then add the `-op  conp` argument  after the name of the input file.
-e.g.
 
-```gulp_setup_file input.cif -op conp```
+By default, GULP input files are created for constant volumes (lattice not optimized).
+If you want to optimize the lattices, add the `-op conp` argument after the name of the input file.
 
-This will trigger the lattice optimization.
+Example:
 
-# Running Gulp
-if you have gulp installed. You can simply run it as follows:
+```bash
+gulp_setup_file input.cif -op conp
+```
 
-```gulp < input.gin > input.got```
+This will trigger lattice optimization.
+
+## Running GULP
+
+If you have GULP installed, you can simply run it as follows:
+
+```bash
+gulp < input.gin > input.got
+```
+
 or
-```~/src/gulp-6.0/Src/gulp < input.gin > input.got```
 
-# N.B
-The latter example will work if your gulp executable are in a folder called `$HOME/src`.
-If you require more information about installing gulp checkout the following link https://gulp.curtin.edu.au/download.html . You can also email me if you have trouble with your installation. I am not an expert but might have a little knowledge on how to guide you.
+```bash
+~/src/gulp-6.0/Src/gulp < input.gin > input.got
+```
 
-#### !!! Enjoy gulping !!!
+## Notes
 
+The second example assumes you have compiled GULP into a folder called `$HOME/src`.
 
+For more information about installing GULP, visit:
+[Download GULP](https://gulp.curtin.edu.au/download.html)
 
+You can also email me if you have trouble with your installation. I am not an expert but I may have some knowledge to guide you.
 
+## Enjoy gulping

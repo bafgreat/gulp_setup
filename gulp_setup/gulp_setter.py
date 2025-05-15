@@ -67,6 +67,16 @@ def Submit(qc_base, dir):
     os.system('mv ' + new_file+ '  ' + dir)
     return
 
+def find_cifs(qcin_folder):
+    """
+    Find CIF files in the current folder or the qcin folder.
+
+    :param qcin_folder: The qcin folder to search for CIF files.
+    :return: List of paths to CIF files found.
+    """
+    current_cifs = glob.glob("./*.cif")
+    qcin_cifs = glob.glob(os.path.join(qcin_folder, "*.cif"))
+    return current_cifs + qcin_cifs
 
 def gulp_input(qcin, lattice='conv'):
     # Reading and writing gulp file
@@ -104,6 +114,28 @@ def gulp_input2(qcin, lattice='conv'):
         Submit(qc_base, qc_base)
     return
 
+def gulp_input_region(qcin, lattice='conv'):
+    """
+    """
+
+    # Reading and writing gulp file
+    #    all_atoms_append =[]
+    #     File = parse_cif_ase(qcin)
+    #     for structure in File:
+    #        all_atoms_append.append(structure.get_atoms())
+    #         sbu =all_atoms_append[0]
+    # all_cifs = glob.glob(f"{qcin}/*.cif")
+    all_cifs = find_cifs(qcin)
+    for cif_file in all_cifs:
+        qc_base = cif_file[:cif_file.rindex('.')]
+        sbu = read(cif_file)
+        bonds, mmtypes = mm.analyze_mm(sbu)
+        out_file = qc_base + '.gin'
+        mm.write_gin_with_region(out_file, sbu, bonds, mmtypes, lattice)
+        make_directory(qc_base)
+        Submit(qc_base, qc_base)
+    return
+
 
 def gulp_to_folder():
     '''
@@ -137,3 +169,20 @@ def gulp_to_file():
     args = parser.parse_args()
 
     gulp_input(args.cif_file, args.lattice_optimisation)
+
+
+def gulp_to_region():
+    '''
+    Command line interface for computing docker
+    '''
+    parser = argparse.ArgumentParser(
+        description='Run work_flow function with optional verbose output')
+    parser.add_argument('cif_file', type=str,
+                        help='path to cif file')
+
+    parser.add_argument('-op', '--lattice_optimisation', type=str,
+                        default='conv', help='default:conv for constant volume (meaning that lattices are constant) or conp if for lattice optimisation' )
+
+    args = parser.parse_args()
+
+    gulp_input_region(args.cif_file, args.lattice_optimisation)
