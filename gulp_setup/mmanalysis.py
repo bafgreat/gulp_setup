@@ -498,30 +498,52 @@ def find_key_by_value(data, target):
     return None
 
 
-def write_gin(path,
-              atoms,
-              bonds,
-              mmtypes, lattice='conp'):
-    """Write an GULP input file to disc"""
+def write_gin(path, atoms, bonds, mmtypes, add_c_if_2d=False, c_length=80.0):
+    """Write a GULP input file to disc
+
+    Parameters
+    ----------
+    path: str or Path
+        the file path to the file object
+        where the chemical information will
+        be written
+    atoms: ase.Atoms
+        the chemical information
+    bonds: numpy.array
+        the block symmetric matrix of bond orders
+    mmtypes: [str, ...]
+        the UFF atomic types
+
+    Returns
+    -------
+    None
+    """
     with open(path, "w") as fileobj:
-        fileobj.write('opti ' + lattice + ' molmec noautobond conjugate cartesian unit positive unfix\n')
-        fileobj.write('maxcyc 500\n')
-        fileobj.write('switch bfgs gnorm 1.0\n')
+        fileobj.write(("opti conp molmec noautobond conjugate " "cartesian unit positive unfix\n"))
+        fileobj.write("maxcyc 100\n")
+        fileobj.write("switch bfgs gnorm 1.0\n")
         pbc = atoms.get_pbc()
         if pbc.any():
             cell = atoms.get_cell().tolist()
             if not pbc[2]:
-                fileobj.write('{0}\n'.format('svectors'))
-                fileobj.write('{0:.3f} {1:.3f} {2:.3f}\n'.format(*cell[0]))
-                fileobj.write('{0:.3f} {1:.3f} {2:.3f}\n'.format(*cell[1]))
+                if add_c_if_2d:
+                    # Emulate vacuum by switching to full 3D vectors with a big c
+                    fileobj.write("vectors\n")
+                    fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[0]))
+                    fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[1]))
+                    fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(0.0, 0.0, float(c_length)))
+                else:
+                    fileobj.write("{0}\n".format("svectors"))
+                    fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[0]))
+                    fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[1]))
             else:
-                fileobj.write('{0}\n'.format('vectors'))
-                fileobj.write('{0:.3f} {1:.3f} {2:.3f}\n'.format(*cell[0]))
-                fileobj.write('{0:.3f} {1:.3f} {2:.3f}\n'.format(*cell[1]))
-                fileobj.write('{0:.3f} {1:.3f} {2:.3f}\n'.format(*cell[2]))
-        fileobj.write('{0}\n'.format('cartesian'))
+                fileobj.write("{0}\n".format("vectors"))
+                fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[0]))
+                fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[1]))
+                fileobj.write("{0:.3f} {1:.3f} {2:.3f}\n".format(*cell[2]))
+        fileobj.write("{0}\n".format("cartesian"))
         symbols = atoms.get_chemical_symbols()
-        #We need to map MMtypes to numbers. We'll do it via a dictionary
+        # We need to map MMtypes to numbers. We'll do it via a dictionary
         symb_types = []
         mmdic = {}
         types_seen = 1
@@ -533,40 +555,39 @@ def write_gin(path,
             else:
                 symb_types.append(mmdic[m])
         # write it
-        for s, (x, y, z), in zip(symb_types, atoms.get_positions()):
-            fileobj.write('{0:<4} {1:<7} {2:<15.8f} {3:<15.8f} {4:<15.8f}\n'.format(s,'core', x, y, z))
-        fileobj.write('\n')
-        bondstring = {4: 'quadruple',
-                      3: 'triple',
-                      2: 'double',
-                      1.5: 'resonant',
-                      1.0: '',
-                      0.5: 'half',
-                      0.25: 'quarter'}
+        for (
+            s,
+            (x, y, z),
+        ) in zip(symb_types, atoms.get_positions()):
+            fileobj.write(("{0:<4} {1:<7} {2:<15.8f} " "{3:<15.8f} {4:<15.8f}\n").format(s, "core", x, y, z))
+        fileobj.write("\n")
+        bondstring = {
+            4: "quadruple",
+            3: "triple",
+            2: "double",
+            1.5: "resonant",
+            1.0: "",
+            0.5: "half",
+            0.25: "quarter",
+        }
         # write the bonding
         for (i0, i1), b in numpy.ndenumerate(bonds):
             if i0 < i1 and b > 0.0:
-                fileobj.write('{0} {1:<4} {2:<4} {3:<10}\n'.format('connect', i0 + 1, i1 + 1, bondstring[b]))
-        fileobj.write('\n')
-        fileobj.write('{0}\n'.format('species'))
+                fileobj.write(("{0} {1:<4} {2:<4} {3:<10}" "\n").format("connect", i0 + 1, i1 + 1, bondstring[b]))
+        fileobj.write("\n")
+        fileobj.write("{0}\n".format("species"))
         for k, v in mmdic.items():
-            fileobj.write('{0:<5} {1:<5}\n'.format(v, k))
-
-        # fileobj.write('\n')
-        # fileobj.write('{0}\n'.format('constraints'))
-        fileobj.write('\n')
-        fileobj.write('library uff4mof\n')
-        fileobj.write('\n')
+            fileobj.write("{0:<5} {1:<5}\n".format(v, k))
+        fileobj.write("\n")
+        fileobj.write("library uff4mof\n")
+        fileobj.write("\n")
         name = ".".join(path.split("/")[-1].split(".")[:-1])
-        fileobj.write('dump every  10 {0}.res\n'.format(name))
-
-        #fileobj.write('output movie xyz {0}.xyz\n'.format(name))
-        #fileobj.write('output gen {0}.gen\n'.format(name))
+        fileobj.write("output movie xyz {0}.xyz\n".format(name))
+        fileobj.write("output cssr {0}.cssr\n".format(name))
+        fileobj.write("output gen {0}.gen\n".format(name))
         if sum(pbc) == 3:
-            fileobj.write('output cif {0}_opt.cif\n'.format(name))
-        fileobj.write('output xyz {0}_opt.xyz\n'.format(name))
+            fileobj.write("output cif {0}.cif\n".format(name))
         return None
-
 
 def write_gin_with_region(path,
                           atoms,

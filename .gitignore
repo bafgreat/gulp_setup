@@ -5,3 +5,10 @@ gulp_setup/AMS_GULP.py
 .DS_Store
 .history/
 data/EDUSIF.got
+.pyenv/
+.vscode/
+data/EDUSIF.res
+data/EDUSIF_opt.cif
+data/EDUSIF_opt.got
+data/EDUSIF_opt.xyz
+dist/
