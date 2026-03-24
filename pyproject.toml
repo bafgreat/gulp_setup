@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gulp_setup"
-version = "0.1.5"
+version = "0.1.6"
 description = "A python script to convert any ase input file to gulp (.gin)"
 authors = ["Dinga Wonanke"]
 license = "MIT"
@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "gulp_setup"}]
 
 [tool.poetry.dependencies]
-python = "^3.6 || >=3.7,<3.12"
+python = ">=3.9,<3.14"
 # ase = "^3.18.0"
 mofstructure="^0.1.8.3"
 
