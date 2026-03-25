@@ -333,7 +333,7 @@ def get_bond_matrix(sbu):
         if 5 <= len(cycle) <= 10:
             ring_symbols = symbols[cycle]
             homocycle = numpy.all(ring_symbols == "C")
-            heterocycle = numpy.in1d(ring_symbols, ["C", "S", "N", "O"]).all()
+            heterocycle = numpy.isin(ring_symbols, ["C", "S", "N", "O"]).all()
             if (homocycle and len(cycle) % 2 == 0) or heterocycle:
                 coords = positions[cycle]
                 # Check coplanarity

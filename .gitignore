@@ -12,3 +12,5 @@ data/EDUSIF_opt.cif
 data/EDUSIF_opt.got
 data/EDUSIF_opt.xyz
 dist/
+data/EDUSIF.gin
+poetry.lock
