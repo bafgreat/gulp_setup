@@ -74,6 +74,19 @@ gulp_setup_file input.cif -op conp
 
 This will trigger lattice optimization.
 
+If you wish to setup gulp to compute mechanical properties of say a MOF,
+run the following command
+
+```bash
+gulp_setup_mechanical input.cif
+```
+
+The same command can be ran on folder containing a list of files.
+
+```bash
+gulp_setup_mechanical folder_name
+```
+
 ## Running GULP
 
 If you have GULP installed, you can simply run it as follows:

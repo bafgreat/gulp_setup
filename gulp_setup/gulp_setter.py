@@ -92,6 +92,20 @@ def gulp_input(qcin, lattice='conv'):
     mm.write_gin(out_file, sbu, bonds, mmtypes, lattice)
     return
 
+def gulp_mechanical(qcin, lattice='conp'):
+    # Reading and writing gulp file
+    #    File = parse_cif_ase(qcin)
+    #    for structure in File:
+    #       all_atoms_append.append(structure.get_atoms())
+    #        sbu =all_atoms_append[0]
+    all_atoms_append = []
+    qc_base = qcin[:qcin.rindex('.')]
+    sbu = read(qcin)
+    bonds, mmtypes = mm.analyze_mm(sbu)
+    out_file = qc_base+'.gin'
+    mm.write_gin(out_file, sbu, bonds, mmtypes, lattice, mechanical=True)
+    return
+
 
 def gulp_input2(qcin, lattice='conv'):
     """
@@ -169,6 +183,62 @@ def gulp_to_file():
     args = parser.parse_args()
 
     gulp_input(args.cif_file, args.lattice_optimisation)
+
+def gulp_to_mechanical():
+    '''
+    Command line interface for computing docker
+    '''
+    parser = argparse.ArgumentParser(
+        description='Run work_flow function with optional verbose output')
+    parser.add_argument('cif_file', type=str,
+                        help='path to cif file')
+
+    parser.add_argument('-op', '--lattice_optimisation', type=str,
+                        default='conp', help='default:conp meanin lattice optimisation' )
+
+    args = parser.parse_args()
+
+    gulp_mechanical(args.cif_file, args.lattice_optimisation)
+
+
+
+STRUCTURE_EXTENSIONS = ('.cif', '.xyz', '.gen', '.res', '.vasp', '.poscar')
+
+
+def gulp_mechanical_folder(folder, lattice='conp'):
+    """
+    Run mechanical property setup for all ASE-readable structure
+    files in a folder.
+    """
+    found = []
+    for ext in STRUCTURE_EXTENSIONS:
+        found.extend(glob.glob(os.path.join(folder, f'*{ext}')))
+    found.extend(glob.glob(os.path.join(folder, 'POSCAR')))
+    found.extend(glob.glob(os.path.join(folder, 'CONTCAR')))
+
+    if not found:
+        print(f'No structure files found in {folder}')
+        return
+
+    for structure_file in found:
+        try:
+            gulp_mechanical(structure_file, lattice)
+        except Exception as e:
+            print(f'Skipping {structure_file}: {e}')
+
+
+def gulp_to_mechanical_folder():
+    """
+    Command line interface for mechanical property setup on a folder of structures.
+    """
+    parser = argparse.ArgumentParser(
+        description='Write GULP mechanical property input files for all structures in a folder')
+    parser.add_argument('folder', type=str,
+                        help='path to folder containing structure files')
+    parser.add_argument('-op', '--lattice_optimisation', type=str,
+                        default='conp', help='conp for lattice optimisation (default), conv for fixed cell')
+    args = parser.parse_args()
+    gulp_mechanical_folder(args.folder, args.lattice_optimisation)
 
 
 def gulp_to_region():

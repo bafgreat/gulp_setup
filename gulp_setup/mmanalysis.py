@@ -428,7 +428,7 @@ def best_type(dx,
     return mintyp
 
 
-def analyze_mm(sbu):
+def analyze_mm(sbu, bond_order=None):
     """Returns the UFF types and bond matrix for an ASE Atoms."""
     ufflib = read_uff_library(library="uff4mof")
 
@@ -441,8 +441,11 @@ def analyze_mm(sbu):
         mmtypes = numpy.array([uff_types[0]
                                if uff_types else symbol])  # fallback
         return bonds, mmtypes
+    if bond_order is None:
+        bonds = get_bond_matrix(sbu)
+    else:
+        bonds = bond_order
 
-    bonds = get_bond_matrix(sbu)
     mmtypes = [None,]*len(sbu)
     for atom in sbu:
         if atom.symbol == "X":
@@ -498,7 +501,7 @@ def find_key_by_value(data, target):
     return None
 
 
-def write_gin(path, atoms, bonds, mmtypes, add_c_if_2d=False, c_length=80.0):
+def write_gin(path, atoms, bonds, mmtypes, lattice='conp', add_c_if_2d=False, c_length=80.0, mechanical=False):
     """Write a GULP input file to disc
 
     Parameters
@@ -519,9 +522,14 @@ def write_gin(path, atoms, bonds, mmtypes, add_c_if_2d=False, c_length=80.0):
     None
     """
     with open(path, "w") as fileobj:
-        fileobj.write(("opti conp molmec noautobond conjugate " "cartesian unit positive unfix\n"))
-        fileobj.write("maxcyc 100\n")
-        fileobj.write("switch bfgs gnorm 1.0\n")
+        if mechanical:
+            fileobj.write(f"opti {lattice} molmec noautobond conjugate cartesian unit positive unfix prop\n")
+            fileobj.write("maxcyc 1000\n")
+            fileobj.write("switch bfgs gnorm 0.001\n")
+        else:
+            fileobj.write(f"opti {lattice} molmec noautobond conjugate cartesian unit positive unfix\n")
+            fileobj.write("maxcyc 100\n")
+            fileobj.write("switch bfgs gnorm 1.0\n")
         pbc = atoms.get_pbc()
         if pbc.any():
             cell = atoms.get_cell().tolist()
